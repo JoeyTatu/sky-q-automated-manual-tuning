@@ -11,18 +11,42 @@ This script automates the Sky Q Manual Tuning menus using remote-control command
 
 The default box IP is 192.168.0.7. Remote commands use TCP port 49160.
 
+## Download the project
+
+1. Open [sky-q-automated-manual-tuning on GitHub](https://github.com/JoeyTatu/sky-q-automated-manual-tuning).
+2. Select **Code → Download ZIP**.
+3. Extract the ZIP using your operating system's archive tool.
+4. Locate the project folder containing sky_q_tuning.py, sky_q_frequencies.txt, README.md and LICENCE. You can name the folder sky-q-automated-manual-tuning. ZIP downloads may include a branch suffix such as -main.
+
+Alternatively, with Git installed, run:
+
+~~~sh
+git clone https://github.com/JoeyTatu/sky-q-automated-manual-tuning.git
+~~~
+
+This creates a folder named sky-q-automated-manual-tuning inside the terminal's current folder. Keep the script and default frequency list together.
+
 ## Run the script
 
-Open PowerShell and enter:
+Open a terminal on Windows, macOS or Linux and navigate to the folder where you extracted or cloned the project. You can use cd followed by the folder's path in quotes. Use the actual location you chose when downloading.
 
-~~~powershell
-cd C:\Users\Joey\SkyQBox
+Once the terminal is in the folder containing sky_q_tuning.py, run:
+
+~~~sh
 python sky_q_tuning.py
 ~~~
 
+On systems where Python 3 is available as python3, use:
+
+~~~sh
+python3 sky_q_tuning.py
+~~~
+
+Check that your chosen command reports Python 3.10 or later with python --version or python3 --version. Use that same command for all examples below.
+
 Show available options:
 
-~~~powershell
+~~~sh
 python sky_q_tuning.py --help
 ~~~
 
@@ -30,19 +54,33 @@ python sky_q_tuning.py --help
 
 For one run, supply your Sky Q box's address with --host:
 
-~~~powershell
+~~~sh
 python sky_q_tuning.py --host 192.168.0.20
 ~~~
 
 Replace the example address with the current address of your box. Check the box's Network connection and Network setup screens for its IP address.
 
-To change the default permanently, edit this line in sky_q_tuning.py:
+To change the default IP address inside the code:
+
+1. Open sky_q_tuning.py in a plain-text editor.
+2. Find line 51 in the current version, or search for parser.add_argument("--host". Line numbers may change in later versions.
+3. Locate this line:
 
 ~~~python
 parser.add_argument("--host", default="192.168.0.7")
 ~~~
 
-Replace the address in default="..." and save. Supplying --host overrides the saved default.
+4. Replace only the address between the quotes after default=. For example, if your Sky Q box has the address 192.168.0.20, use:
+
+~~~python
+parser.add_argument("--host", default="192.168.0.20")
+~~~
+
+5. Save the file, then run the script again. It will use the new default address.
+
+Enter the current local IP address assigned to your Sky Q box. Both the box's address and your router's address depend on your network. Check the Sky Q box's network information and use the address shown for the box.
+
+The addresses in the header comments are examples. The --host argument on line 51 controls the default connection address. Supplying --host on the command line overrides that default for the current run.
 
 ## Frequency-file format
 
@@ -75,11 +113,38 @@ The script validates all rows before sending any remote commands. Check current 
 
 Use another file with --list:
 
-~~~powershell
-python sky_q_tuning.py --host 192.168.0.20 --list "C:\Users\Joey\SkyQBox\another_list.txt"
+~~~sh
+python sky_q_tuning.py --host 192.168.0.20 --list "another_list.txt"
 ~~~
 
 The default list is resolved beside the script. A relative path supplied through --list is resolved from the terminal's current folder.
+
+## Edit or create a frequency list
+
+1. Close any running tuning script before editing its list.
+2. Open sky_q_frequencies.txt in a plain-text editor, such as Notepad on Windows, TextEdit in plain-text mode on macOS, or a text editor on Linux.
+3. Add, change, remove or reorder rows using the format described above. Use current tuning parameters for the channels you want.
+4. Save the file as UTF-8 plain text, then run the script again. Use Ctrl+S on Windows/Linux or Command+S on macOS.
+
+For example, changing a frequency means replacing the first five digits on its row. If the broadcaster also changed polarisation, symbol rate, FEC, standard or modulation, update those fields too. Keep the comma before the channel label. The example rows demonstrate file format and are not checked live against satellite listings.
+
+The script scans rows from top to bottom. To select several channels from one frequency, you can use one row with a descriptive label:
+
+~~~text
+11224 H DVB-S QPSK 27.5 2/3, Select the channels you want from these results
+~~~
+
+Choose and save the channels on the TV, then tell the script exactly how many you saved. Entering several rows with identical tuning parameters causes repeated scans of that frequency.
+
+To preserve the supplied list, save a copy named another_list.txt in the project folder. Keep UTF-8 encoding and plain-text format. Check that the editor has not added an extra extension, such as another_list.txt.txt, or saved the file as a rich-text document.
+
+Run your custom list with:
+
+~~~sh
+python sky_q_tuning.py --list "another_list.txt"
+~~~
+
+You can also supply --host when the box uses a different IP address. The script loads the list once at startup, so restart it to use subsequent edits.
 
 ## Follow the prompts
 
